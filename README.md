@@ -9,3 +9,4 @@ Instructions
 - Develop: `npm run dev`
 - Compile: `npm run compile`
 - Compile for production: `npm run compile-prod`
+- Deploy to gh-pages: `npm run build-site`
