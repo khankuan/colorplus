@@ -33,7 +33,7 @@ class Header extends React.Component {
         </div>
 
         <div className='intro'>
-          <span style={{color: '#3498DB'}}>Plus </span>
+          <span style={{color: '#3498DB'}}>Add </span>
           <span style={{color: '#34495E'}}>& </span>
           <span style={{color: '#16A085'}}>Guess </span>
           <span style={{color: '#8E44AD'}}>the </span>
