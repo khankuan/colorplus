@@ -30,6 +30,10 @@ function getEntrySources(sources) {
     sources.push('./src/js/dev.js');
   }
 
+  if (process.env.NODE_ENV === 'production'){
+    sources.push('./src/js/ga.js');
+  }
+
   return sources;
 }
 
