@@ -6,7 +6,7 @@
     "dev": "export NODE_ENV=dev; webpack-dev-server --hot --progress --colors --content-base public",
     "compile": "webpack",
     "compile-prod": "export NODE_ENV=production; webpack -p",
-    "build-site": "git add public && git commit -m \"Build site\"; git subtree push --prefix public origin gh-pages;"
+    "build-site": "npm run compile-prod; git checkout gh-pages; git merge master;"
   },
   "dependencies": {
     "babel-core": "^5.6.18",
