@@ -12,7 +12,7 @@ module.exports = {
     loaders: [
       {
         test: /\.js$/,
-        loaders: getLoeaders(['jsx', 'babel']),
+        loaders: getLoaders(['jsx', 'babel']),
         exclude: /node_modules/
       },
       {
@@ -37,7 +37,7 @@ function getEntrySources(sources) {
   return sources;
 }
 
-function getLoeaders(loaders){
+function getLoaders(loaders){
   if (process.env.NODE_ENV === 'dev') {
     loaders.unshift('react-hot');
   }
