@@ -14,7 +14,7 @@
 
   .plus {
     display: inline-block;
-    line-height: 120px;
+    line-height: 72px;
   }
 
 
@@ -25,16 +25,16 @@
 }
 
 .box {
-  width: 100px;
-  height: 100px;
+  width: 72px;
+  height: 72px;
   border-radius: 0.3em;
   display: inline-block;
 }
 
 .box-option {
-  width: 100px;
-  height: 100px;
-  border-radius: 50px;
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
   display: inline-block;
   margin: 0 10px; 
 }
@@ -51,7 +51,7 @@
 }
 
 .time {
-  margin-bottom: 1em;
+  margin-bottom: 0.5em;
   font-size: 48px;
 }
 
@@ -66,4 +66,30 @@
   -webkit-animation:blink normal 0.8s infinite ease-in-out; /* Webkit */
   -ms-animation:blink normal 0.8s infinite ease-in-out; /* IE */
   animation:blink normal 0.8s infinite ease-in-out; /* Opera */
+}
+
+
+@media (min-width: 520px) {
+  .box {
+    width: 120px;
+    height: 120px;
+  }
+
+  .game {
+    .plus {
+      line-height: 120px;
+    }
+  }
+
+  .box-option {
+    width: 100px;
+    height: 100px;
+    border-radius: 50px;
+  }
+
+  .intro {
+    div {
+      line-height: 32px;
+    }
+  }
 }

@@ -1,6 +1,7 @@
 
 .title {
-  font-size: 72px;
+  font-size: 36px;
+  line-height: 60px;
 }
 
 
@@ -13,7 +14,7 @@
   display: inline-block;
   text-align: center;
   padding: 0 0.3em;
-  margin-left: 1em;
+  margin-left: 0.5em;
   background: #eee;
   border-radius: 0.3em;
 
@@ -22,7 +23,7 @@
   }
 
   .score-amt {
-    font-size: 24px;
+    font-size: 18px;
     font-family: 'Moon Light';
   }
 }
@@ -30,13 +31,15 @@
 
 .intro {
   margin-top: 1em;
-  font-size: 18px;
+  font-size: 14px;
   font-family: 'Moon Light';
   width: 100%;
   margin-bottom: 1em;
+  display: inline-block;
 
-  span {
-    line-height: 40px;
+  div {
+    display: inline-block;
+    width: calc(100% - 120px);
   }
 
   a {
@@ -47,5 +50,20 @@
     cursor: pointer;
     float: right;
     font-family: 'Moon Bold';
+    width: 80px;
+  }
+}
+
+
+@media (min-width: 520px) {
+  .title {
+    font-size: 72px;
+    line-height: 72px;
+  }
+
+  .intro {
+    div {
+      line-height: 32px;
+    }
   }
 }

@@ -33,12 +33,14 @@ class Header extends React.Component {
         </div>
 
         <div className='intro'>
-          <span style={{color: '#3498DB'}}>Add </span>
-          <span style={{color: '#34495E'}}>& </span>
-          <span style={{color: '#16A085'}}>Guess </span>
-          <span style={{color: '#8E44AD'}}>the </span>
-          <span style={{color: '#E74C3C'}}>combined </span>
-          <span style={{color: '#F39C12'}}>color!</span>
+          <div>
+            <span style={{color: '#3498DB'}}>Add </span>
+            <span style={{color: '#34495E'}}>& </span>
+            <span style={{color: '#16A085'}}>Guess </span>
+            <span style={{color: '#8E44AD'}}>the </span>
+            <span style={{color: '#E74C3C'}}>combined </span>
+            <span style={{color: '#F39C12'}}>color!</span>
+          </div>
           <a onClick={Actions.App.startGame}>New Game</a>
         </div>
 
