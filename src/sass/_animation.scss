@@ -1,4 +1,6 @@
+
+@keyframes blink {0%{opacity:0.7;} 50%{opacity:1;} 100%{opacity:0.7;}} /* Opera */
 @-moz-keyframes blink {0%{opacity:0.7;} 50%{opacity:1;} 100%{opacity:0.7;}} /* Firefox */
 @-webkit-keyframes blink {0%{opacity:0.7;} 50%{opacity:1;} 100%{opacity:0.7;}} /* Webkit */
 @-ms-keyframes blink {0%{opacity:0.7;} 50%{opacity:1;} 100%{opacity:0.7;}} /* IE */
-@keyframes blink {0%{opacity:0.7;} 50%{opacity:1;} 100%{opacity:0.7;}} /* Opera */
+

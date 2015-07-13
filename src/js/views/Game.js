@@ -13,7 +13,7 @@ class Game extends React.Component {
     super(props);
     this.state = Stores.Game.getState();
 
-    const greyRGB = (127 << 16) + (127 << 8) + 127;
+    const greyRGB = (224 << 16) + (224 << 8) + 224;
     this.state.options = [greyRGB, greyRGB, greyRGB, greyRGB];
     this.state.colorA = greyRGB;
     this.state.colorB = greyRGB;
@@ -55,9 +55,9 @@ class Game extends React.Component {
           {parseFloat(this.state.msLeft / 1000).toFixed(2).split('.').join(':')}
         </div>
 
-        <div className='box' style={{background: this._intToHexColor(this.state.colorA)}} />
+        <div className='box background-fade' style={{background: this._intToHexColor(this.state.colorA)}} />
         <div className='symbol plus'>+</div>
-        <div className='box' style={{background: this._intToHexColor(this.state.colorB)}} />
+        <div className='box background-fade' style={{background: this._intToHexColor(this.state.colorB)}} />
 
         <div className='symbol equals'>=</div>
         {
@@ -65,7 +65,7 @@ class Game extends React.Component {
             return (
               <div
                 key={i}
-                className='box-option'
+                className='box-option background-fade'
                 style={{cursor: 'pointer', background: this._intToHexColor(color)}}
                 onClick={Actions.Game.pickOption.bind(null, i)} />
             );
