@@ -43,9 +43,10 @@ class GameLogic {
   }
 
   static nextRound (prevRound = {score: -1}) {
+    const msLeft = Math.max(15000 - 1000 * (prevRound.score + 1), 2000);
     let round = {
       score: prevRound.score + 1,
-      msLeft: 3000,
+      msLeft,
       colorA: GameLogic._random24(),
       colorB: GameLogic._random24(),
       options: []
@@ -67,7 +68,20 @@ class GameLogic {
   }
 
   static _random24() {
-    return Math.floor(Math.pow(2, 24) * Math.random());
+    const mixR = 160;
+    const mixG = 128;
+    const mixB = 128;
+    let red = Math.floor(Math.pow(2, 8) * Math.random());
+    let green = Math.floor(Math.pow(2, 8) * Math.random());
+    let blue = Math.floor(Math.pow(2, 8) * Math.random());
+
+    // mix the color
+    red = (red + mixR) >> 1;
+    green = (green + mixG) >> 1;
+    blue = (blue + mixB) >> 1;
+    return (red << 16) + (green << 8) + blue;
+
+    //return Math.floor(Math.pow(2, 24) * Math.random());
   }
 
   static _shuffle(o){

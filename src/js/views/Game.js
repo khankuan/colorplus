@@ -1,4 +1,6 @@
 import React from 'react';
+import cx from 'classnames';
+
 import {
   Stores,
   Actions
@@ -38,12 +40,19 @@ class Game extends React.Component {
 
 
   render (){
+    const danger = this.state.msLeft < 5000;
+
     return (
       <div className='game'>
         <div
-          className='time'
-          style={{visibility: this.props.enabled ? 'visible' : 'hidden'}}>
-          {parseFloat(this.state.msLeft / 1000).toFixed(2)} secs
+          className={cx({
+            'time': true,
+            'time-danger': danger
+          })}
+          style={{
+            visibility: this.props.enabled ? 'visible' : 'hidden'
+          }}>
+          {parseFloat(this.state.msLeft / 1000).toFixed(2).split('.').join(':')}
         </div>
 
         <div className='box' style={{background: this._intToHexColor(this.state.colorA)}} />

@@ -8,7 +8,7 @@ import {
 class Ended extends React.Component {
 
   handleShare () {
-    let message = `I scored ${this.props.gameStore.score} points at COLOR+, a game where you join numbers to score high! #colorplus ${window.location}`;
+    let message = `I scored ${this.props.gameStore.score} points at COLOR+, a game where you guess a combination of colors! #colorplus ${window.location}`;
     const w = 600;
     const h = 300;
     const left = (screen.width / 2) - (w / 2);
