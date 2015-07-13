@@ -45,7 +45,7 @@ class GameLogic {
   static nextRound (prevRound = {score: -1}) {
     let round = {
       score: prevRound.score + 1,
-      msLeft: 30000,
+      msLeft: 3000,
       colorA: GameLogic._random24(),
       colorB: GameLogic._random24(),
       options: []

@@ -45,19 +45,21 @@ class App extends React.Component {
   render(){
 
     return (
-      <div>
+      <div className='app'>
         <Header
           appStore={this.state.appStore}
           gameStore={this.state.gameStore} />
 
-        <Game enabled={this.state.appStore.appState === 'STARTED'} />
+        <div className='container'>
+          <Game enabled={this.state.appStore.appState === 'STARTED'} />
 
-        {this.state.appStore.appState === 'ENDED' ?
+          {this.state.appStore.appState === 'ENDED' ?
 
-        <Ended gameStore={this.state.gameStore} />
+          <Ended gameStore={this.state.gameStore} />
 
-        : null}
+          : null}
 
+        </div>
       </div>
     );
   }

@@ -1,0 +1,49 @@
+.game {
+  text-align: center;
+  width: 100%;
+  background: #eee;
+  padding: 2em 0;
+
+  .symbol {
+    font-size: 96px;
+    font-family: 'Moon Light';
+    vertical-align: top;
+    line-height: 72px;
+    margin: 0 0.3em;
+  }
+
+  .plus {
+    display: inline-block;
+    line-height: 120px;
+  }
+
+
+  .equals {
+    display: block;
+    line-height: 96px;
+  }
+}
+
+.box {
+  width: 100px;
+  height: 100px;
+  border-radius: 0.3em;
+  display: inline-block;
+}
+
+.box-option {
+  width: 100px;
+  height: 100px;
+  border-radius: 50px;
+  display: inline-block;
+  margin: 0 10px; 
+}
+
+.box-option:hover {
+  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+
+.time {
+  margin-bottom: 1em;
+  font-size: 48px;
+}

@@ -1,0 +1,50 @@
+
+.title {
+  font-size: 72px;
+}
+
+
+.scores {
+  display: inline-block;
+  float: right;
+}
+
+.score {
+  display: inline-block;
+  text-align: center;
+  padding: 0 0.3em;
+  margin-left: 1em;
+  background: #eee;
+  border-radius: 0.3em;
+
+  p {
+    margin: 0.5em;
+  }
+
+  .score-amt {
+    font-size: 24px;
+  }
+}
+
+
+.intro {
+  margin-top: 1em;
+  font-size: 18px;
+  font-family: 'Moon Light';
+  width: 100%;
+  margin-bottom: 1em;
+
+  span {
+    line-height: 40px;
+  }
+
+  a {
+    background: rgba(40, 62, 80, 0.7);
+    color: white;
+    border-radius: 0.3em;
+    padding: 0.5em;
+    cursor: pointer;
+    float: right;
+    font-family: 'Moon Bold';
+  }
+}
