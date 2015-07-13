@@ -26,7 +26,7 @@ class Header extends React.Component {
           </div>
 
           <div className='score'>
-            <p>BEST</p>
+            <p>&nbsp;&nbsp;BEST&nbsp;&nbsp;</p>
             <p className='score-amt'>{Math.max(this.props.appStore.highScore || 0, this.props.gameStore.score || 0)}</p>
           </div>
 
