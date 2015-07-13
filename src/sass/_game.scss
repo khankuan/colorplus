@@ -57,15 +57,23 @@
 
 .time-danger {
   color: #C0392B;
-  -moz-transition:all 0.5s ease-in-out;
-  -webkit-transition:all 0.5s ease-in-out;
-  -o-transition:all 0.5s ease-in-out;
-  -ms-transition:all 0.5s ease-in-out;
-  transition:all 0.5s ease-in-out; 
-  -moz-animation:blink normal 0.8s infinite ease-in-out; /* Firefox */
-  -webkit-animation:blink normal 0.8s infinite ease-in-out; /* Webkit */
-  -ms-animation:blink normal 0.8s infinite ease-in-out; /* IE */
-  animation:blink normal 0.8s infinite ease-in-out; /* Opera */
+  -moz-transition: all 0.5s ease-in-out;
+  -webkit-transition: all 0.5s ease-in-out;
+  -o-transition: all 0.5s ease-in-out;
+  -ms-transition: all 0.5s ease-in-out;
+  transition: all 0.5s ease-in-out; 
+  -moz-animation: blink normal 0.8s infinite ease-in-out; /* Firefox */
+  -webkit-animation: blink normal 0.8s infinite ease-in-out; /* Webkit */
+  -ms-animation: blink normal 0.8s infinite ease-in-out; /* IE */
+  animation: blink normal 0.8s infinite ease-in-out; /* Opera */
+}
+
+.background-fade {
+  -moz-transition: background 0.3s ease-in-out;
+  -webkit-transition: background 0.3s ease-in-out;
+  -o-transition: background 0.3s ease-in-out;
+  -ms-transition: background 0.3s ease-in-out;
+  transition: background 0.3s ease-in-out;
 }
 
 
