@@ -7,10 +7,6 @@ import AppActions from './App';
 
 class Game {
 
-  startGame () {
-    this.actions.nextRound();
-  }
-
   decrementTime (time) {
     this.dispatch(time);
 
