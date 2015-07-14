@@ -7,5 +7,6 @@ import '../sass/app.scss';
 
 (function () {
   Actions.App.init();
+  React.initializeTouchEvents(true);
   React.render(<Views.App />, document.body);
 })();

@@ -38,6 +38,14 @@ class Game extends React.Component {
     return '#' + hex;
   }
 
+  _handleHovering (i, on) {
+    if (!on){
+      this.setState({hovering: null});
+    } else {
+      this.setState({hovering: i});
+    }
+  }
+
 
   render (){
     const danger = this.state.msLeft < 5000;
@@ -65,8 +73,17 @@ class Game extends React.Component {
             return (
               <div
                 key={i}
-                className='box-option background-fade'
+                className={cx({
+                  'box-option': true,
+                  'background-fade': true,
+                  'box-option-hover': this.state.hovering === i
+                })}
                 style={{cursor: 'pointer', background: this._intToHexColor(color)}}
+                onMouseOver={this._handleHovering.bind(this, i, true)}
+                onMouseLeave={this._handleHovering.bind(this, i, false)}
+                onTouchEnd={this._handleHovering.bind(this, i, false)}
+                onTouchCancel={this._handleHovering.bind(this, i, false)}
+                onMouseUp={this._handleHovering.bind(this, i, false)}
                 onClick={Actions.Game.pickOption.bind(null, i)} />
             );
           })
