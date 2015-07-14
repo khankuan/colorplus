@@ -68,6 +68,18 @@
   animation: blink normal 0.8s infinite ease-in-out; /* Opera */
 }
 
+.time-add {
+  color: #16A085;
+   -moz-transition: all 0.2s ease-in-out;
+  -webkit-transition: all 0.2s ease-in-out;
+  -o-transition: all 0.2s ease-in-out;
+  -ms-transition: all 0.2s ease-in-out;
+  transition: all 0.2as ease-in-out; 
+}
+
+.time-add-neg {
+  color: #C0392B;
+}
 .background-fade {
   -moz-transition: background 0.3s ease-in-out;
   -webkit-transition: background 0.3s ease-in-out;

@@ -13,7 +13,7 @@ class Game extends React.Component {
     super(props);
     this.state = Stores.Game.getState();
 
-    const greyRGB = (224 << 16) + (224 << 8) + 224;
+    const greyRGB = (127 << 16) + (127 << 8) + 127;
     this.state.options = [greyRGB, greyRGB, greyRGB, greyRGB];
     this.state.colorA = greyRGB;
     this.state.colorB = greyRGB;
@@ -28,6 +28,16 @@ class Game extends React.Component {
     Stores.Game.unlisten(this._handleGameStore);
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.score === (this.state.score - 1)){
+      this.setState({nextRound: true, timeAdded: (this.state.msLeft - prevState.msLeft) / 1000});
+      clearTimeout(this.timeAddPopup);
+      this.timeAddPopup = setTimeout(()=>{
+        this.setState({nextRound: false});
+      }, 1000);
+    }
+  }
+
   _handleGameStore (data) {
     this.setState(data);
   }
@@ -38,18 +48,9 @@ class Game extends React.Component {
     return '#' + hex;
   }
 
-  _handleHovering (i, on) {
-    if (!on){
-      this.setState({hovering: null});
-    } else {
-      this.setState({hovering: i});
-    }
-  }
-
 
   render (){
     const danger = this.state.msLeft < 5000;
-
     return (
       <div className='game'>
         <div
@@ -62,10 +63,19 @@ class Game extends React.Component {
           }}>
           {parseFloat(this.state.msLeft / 1000).toFixed(2).split('.').join(':')}
         </div>
-
-        <div className='box background-fade' style={{background: this._intToHexColor(this.state.colorA)}} />
+        <div
+          className={cx({
+            'time-add': true,
+            'time-add-neg': this.state.timeAdded < 0
+          })}
+          style={{
+            opacity: this.state.nextRound ? '1' : '0'
+          }}>
+          {this.state.timeAdded < 0 ? this.state.timeAdded : ('+' + this.state.timeAdded)}
+        </div>
+        <div className='box' style={{background: this._intToHexColor(this.state.colorA)}} />
         <div className='symbol plus'>+</div>
-        <div className='box background-fade' style={{background: this._intToHexColor(this.state.colorB)}} />
+        <div className='box' style={{background: this._intToHexColor(this.state.colorB)}} />
 
         <div className='symbol equals'>=</div>
         {
@@ -73,17 +83,8 @@ class Game extends React.Component {
             return (
               <div
                 key={i}
-                className={cx({
-                  'box-option': true,
-                  'background-fade': true,
-                  'box-option-hover': this.state.hovering === i
-                })}
+                className='box-option'
                 style={{cursor: 'pointer', background: this._intToHexColor(color)}}
-                onMouseOver={this._handleHovering.bind(this, i, true)}
-                onMouseLeave={this._handleHovering.bind(this, i, false)}
-                onTouchEnd={this._handleHovering.bind(this, i, false)}
-                onTouchCancel={this._handleHovering.bind(this, i, false)}
-                onMouseUp={this._handleHovering.bind(this, i, false)}
                 onClick={Actions.Game.pickOption.bind(null, i)} />
             );
           })
