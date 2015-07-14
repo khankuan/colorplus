@@ -1,3 +1,5 @@
+$button-transition: background 0.2s;
+
 @mixin button-style {
   position: relative;
   background: rgba(40, 62, 80, 0.7);
@@ -5,11 +7,11 @@
   padding: 0.5em;
   box-shadow: 2px 2px rgba(40, 62, 80, 0.3);
 
-  -webkit-transition: background 0.2s;
-  -moz-transition: background 0.2s;
-  -ms-transition: background 0.2s;
-  -o-transition: background 0.2s;
-  transition: background 0.2s;
+  -webkit-transition: $button-transition;
+  -moz-transition: $button-transition;
+  -ms-transition: $button-transition;
+  -o-transition: $button-transition;
+  transition: $button-transition;
 
   &:hover {
     background: rgba(184, 64, 28, 0.7);
