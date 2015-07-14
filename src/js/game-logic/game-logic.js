@@ -43,12 +43,16 @@ class GameLogic {
   }
 
   static nextRound (prevRound = {score: -1}) {
-    const msLeft = Math.max(15000 - 1000 * (prevRound.score + 1), 2000);
+    //  27 rounds before 3 secs left
+    const msLeft = Math.max(30000 - 1000 * (prevRound.score + 1), 3000);
+    const colorA = GameLogic._random24();
+    //  40 rounds before fully random
+    const colorB = GameLogic._random24(colorA, Math.max(4 - (prevRound.score + 1) / 10, 0));
     let round = {
       score: prevRound.score + 1,
       msLeft,
-      colorA: GameLogic._random24(),
-      colorB: GameLogic._random24(),
+      colorA,
+      colorB,
       options: []
     };
 
@@ -67,21 +71,22 @@ class GameLogic {
     started = false;
   }
 
-  static _random24() {
-    const mixR = 160;
+  static _random24(mixer, percent=0) {
+    const mixR = 128;
     const mixG = 128;
     const mixB = 128;
+    const mixerR = mixer ? mixer >> 16 : 0;
+    const mixerG = mixer ? (mixer >> 8) % 256 : 0;
+    const mixerB = mixer ? mixer % 256 : 0;
     let red = Math.floor(Math.pow(2, 8) * Math.random());
     let green = Math.floor(Math.pow(2, 8) * Math.random());
     let blue = Math.floor(Math.pow(2, 8) * Math.random());
 
     // mix the color
-    red = (red + mixR) >> 1;
-    green = (green + mixG) >> 1;
-    blue = (blue + mixB) >> 1;
+    red = Math.floor((red + mixR + mixerR * percent) / (mixer ? 2 + percent : 2));
+    green = Math.floor((green + mixG + mixerG * percent) / (mixer ? 2 + percent : 2));
+    blue = Math.floor((blue + mixB + mixerB * percent) / (mixer ? 2 + percent : 2));
     return (red << 16) + (green << 8) + blue;
-
-    //return Math.floor(Math.pow(2, 24) * Math.random());
   }
 
   static _shuffle(o){
