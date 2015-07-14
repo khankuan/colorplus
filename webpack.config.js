@@ -31,7 +31,7 @@ function getEntrySources(sources) {
   }
 
   if (process.env.NODE_ENV === 'production'){
-    sources.push('./src/js/ga.js');
+    sources.unshift('./src/js/ga.js');
   }
 
   return sources;
