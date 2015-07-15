@@ -63,10 +63,10 @@ class Game extends React.Component {
 
     if (msChange < 0) {
       style.color = '#ea6052';
-      style.marginTop = '16px';
+      style.marginTop = '12px';
     } else if (msChange > 0) {
       style.color = '#2ecc71';
-      style.marginTop = '-16px';
+      style.marginTop = '-12px';
     } else {
       style.visibility = 'hidden';
     }
@@ -88,13 +88,13 @@ class Game extends React.Component {
           style={{
             visibility: this.props.enabled ? 'visible' : 'hidden'
           }}>
-          <div className='ms-left'>{parseFloat(this.state.msLeft / 1000).toFixed(2).split('.').join(':')}</div>
+          <div className='ms-left'>{parseFloat(this.state.msLeft / 1000).toFixed(1).split('.').join(':')}</div>
 
           <div
             className='score-change'
             key={this.state.msChangeTime}
             style={this._getMSChangeStyle(this.state.msChange)}>
-            {this.state.msChange > 0 ? '+' : ''}{parseFloat(this.state.msChange / 1000).toFixed(2)}
+            {this.state.msChange > 0 ? '+' : ''}{parseFloat(this.state.msChange / 1000).toFixed(1)}
             <span className='secs'> secs</span>
           </div>
 

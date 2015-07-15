@@ -13,7 +13,7 @@ class GameLogic {
     function step(timestamp) {
       if (started){
         const curTime = new Date().getTime();
-        if (curTime - prevTime > 50){ //  Not more than once per 50 ms
+        if (curTime - prevTime > 90){ //  Not more than once per 90 ms
           Actions.Game.decrementTime(curTime - prevTime);
           prevTime = curTime;
         }
@@ -63,7 +63,7 @@ class GameLogic {
     round.colorA = GameLogic._random24();
 
     //  score = 25 before fully random, from 4:1 to 0:1
-    const mixerStrength = 4;
+    const mixerStrength = 2;
     const mixerMax = 25;
     round.colorB = GameLogic._random24(round.colorA, Math.max(mixerStrength * (mixerMax - prevRound.score) / mixerMax, 0));
 
