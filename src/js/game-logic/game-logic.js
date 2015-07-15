@@ -42,7 +42,7 @@ class GameLogic {
     return (red << 16) + (green << 8) + blue;
   }
 
-  static nextRound (prevRound = {score: 0, msLeft: 12999, id: new Date().getTime()}, chosenColor) {
+  static nextRound (prevRound = {score: 0, msLeft: 9999, id: new Date().getTime()}, chosenColor) {
     let round = {
       score: prevRound.score,
       msLeft: prevRound.msLeft,
