@@ -28,6 +28,18 @@ class Game extends React.Component {
     Stores.Game.unlisten(this._handleGameStore);
   }
 
+  componentWillUpdate (nextProps, nextState){
+    if (this.state.msLeft !== undefined && this.state.id === nextState.id){
+      const msChange = Math.round((nextState.msLeft - this.state.msLeft) / 1000) * 1000;
+      if (msChange){
+        this.setState({
+          msChangeTime: new Date().getTime(),
+          msChange
+        });
+      }
+    }
+  }
+
   _handleGameStore (data) {
     this.setState(data);
   }
@@ -46,6 +58,22 @@ class Game extends React.Component {
     }
   }
 
+  _getMSChangeStyle (msChange) {
+    let style = {};
+
+    if (msChange < 0) {
+      style.color = '#ea6052';
+      style.marginTop = '16px';
+    } else if (msChange > 0) {
+      style.color = '#2ecc71';
+      style.marginTop = '-16px';
+    } else {
+      style.visibility = 'hidden';
+    }
+
+    return style;
+  }
+
 
   render (){
     const danger = this.state.msLeft < 5000;
@@ -60,7 +88,16 @@ class Game extends React.Component {
           style={{
             visibility: this.props.enabled ? 'visible' : 'hidden'
           }}>
-          {parseFloat(this.state.msLeft / 1000).toFixed(2).split('.').join(':')}
+          <div className='ms-left'>{parseFloat(this.state.msLeft / 1000).toFixed(2).split('.').join(':')}</div>
+
+          <div
+            className='score-change'
+            key={this.state.msChangeTime}
+            style={this._getMSChangeStyle(this.state.msChange)}>
+            {this.state.msChange > 0 ? '+' : ''}{parseFloat(this.state.msChange / 1000).toFixed(2)}
+            <span className='secs'> secs</span>
+          </div>
+
         </div>
 
         <div className='box background-fade' style={{background: this._intToHexColor(this.state.colorA)}} />
