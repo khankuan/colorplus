@@ -77,7 +77,7 @@ class Game extends React.Component {
       style.visibility = 'hidden';
     } else {
       style.opacity = msChangeProgressLeft;
-      style.webkitTransform = `scale(${1 + 0.3 * (1 - msChangeProgressLeft)})`;
+      style.WebkitTransform = `scale(${1 + 0.3 * (1 - msChangeProgressLeft)})`;
       style.transform = `scale(${1 + 0.3 * (1 - msChangeProgressLeft)})`;
     }
 

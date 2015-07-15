@@ -7,7 +7,9 @@
   <title>COLOR+</title>
   <meta name="description" content="COLOR+ is a simple game based on addition of two colors.">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0, maximum-scale=1, user-scalable=no, minimal-ui">
-
+  <meta property="og:url"
+  content="http://khankuan.github.io/colorplus" />
+  <meta property="fb:app_id" content="702508903216656" />
   <link rel="shortcut icon" type="image/png" href="favicon.png"/>
   <link href="favicon.png" rel="apple-touch-icon" />
   <link type="text/css" rel="stylesheet" href="styles/font.css">
@@ -15,6 +17,24 @@
 </head>
 
 <body>
+  <script>
+    window.fbAsyncInit = function() {
+      FB.init({
+        appId      : '702508903216656',
+        xfbml      : true,
+        version    : 'v2.4'
+      });
+    };
+
+    (function(d, s, id){
+       var js, fjs = d.getElementsByTagName(s)[0];
+       if (d.getElementById(id)) {return;}
+       js = d.createElement(s); js.id = id;
+       js.src = "//connect.facebook.net/en_US/sdk.js";
+       fjs.parentNode.insertBefore(js, fjs);
+     }(document, 'script', 'facebook-jssdk'));
+  </script>
+  
   <script src="js/bundle.js"></script>
   <script>
     (function() {
