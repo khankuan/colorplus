@@ -22,6 +22,24 @@
     display: block;
     line-height: 72px;
   }
+
+  .ms-left {
+    width: 64px;
+    display: inline-block;
+  }
+
+  .score-change {
+    position: absolute;
+    display: inline-block;
+    margin-left: 10px;
+
+    font-size: 18px;
+    line-height: 32px;
+
+    .secs {
+      font-size: 11px;
+    }
+  }
 }
 
 .box {
@@ -52,7 +70,7 @@
 
 .time {
   margin-bottom: 0.5em;
-  font-size: 48px;
+  font-size: 32px;
 }
 
 .time-danger {
@@ -87,6 +105,20 @@
     .plus {
       line-height: 120px;
     }
+
+    .score-change {
+      font-size: 24px;
+      line-height: 54px;
+      margin-left: 24px;
+
+      .secs {
+        font-size: 16px;
+      }
+    }
+
+    .ms-left {
+      width: 96px;
+    }
   }
 
   .box-option {
@@ -99,5 +131,10 @@
     div {
       line-height: 32px;
     }
+  }
+
+
+  .time {
+    font-size: 48px;
   }
 }

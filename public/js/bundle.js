@@ -22382,8 +22382,8 @@
 	      function step(timestamp) {
 	        if (started) {
 	          var curTime = new Date().getTime();
-	          if (curTime - prevTime > 50) {
-	            //  Not more than once per 50 ms
+	          if (curTime - prevTime > 90) {
+	            //  Not more than once per 90 ms
 	            _actions2['default'].Game.decrementTime(curTime - prevTime);
 	            prevTime = curTime;
 	          }
@@ -22415,21 +22415,32 @@
 	    }
 	  }, {
 	    key: 'nextRound',
-	    value: function nextRound() {
-	      var prevRound = arguments.length <= 0 || arguments[0] === undefined ? { score: -1 } : arguments[0];
+	    value: function nextRound(prevRound, chosenColor) {
+	      if (prevRound === undefined) prevRound = { score: 0, msLeft: 9999, id: new Date().getTime() };
 
-	      //  27 rounds before 3 secs left
-	      var msLeft = Math.max(30000 - 1000 * (prevRound.score + 1), 3000);
-	      var colorA = GameLogic._random24();
-	      //  40 rounds before fully random
-	      var colorB = GameLogic._random24(colorA, Math.max(4 - (prevRound.score + 1) / 10, 0));
 	      var round = {
-	        score: prevRound.score + 1,
-	        msLeft: msLeft,
-	        colorA: colorA,
-	        colorB: colorB,
-	        options: []
+	        score: prevRound.score,
+	        msLeft: prevRound.msLeft,
+	        options: [],
+	        id: prevRound.id
 	      };
+
+	      //  Compute time change
+	      if (chosenColor) {
+	        if (GameLogic.isCorrectColor(prevRound.colorA, prevRound.colorB, chosenColor)) {
+	          round.msLeft += 1000;
+	          round.score++;
+	        } else {
+	          round.msLeft -= 2000;
+	        }
+	      }
+
+	      round.colorA = GameLogic._random24();
+
+	      //  score = 25 before fully random, from 4:1 to 0:1
+	      var mixerStrength = 2;
+	      var mixerMax = 25;
+	      round.colorB = GameLogic._random24(round.colorA, Math.max(mixerStrength * (mixerMax - prevRound.score) / mixerMax, 0));
 
 	      round.ans = GameLogic.colorAverage(round.colorA, round.colorB);
 	      round.options.push(round.ans);
@@ -22527,26 +22538,21 @@
 	    key: 'pickOption',
 	    value: function pickOption(optionIndex) {
 	      var gameState = _dep.alt.stores.Game.state;
-	      var correct = _dep.GameLogic.isCorrectColor(gameState.colorA, gameState.colorB, gameState.options[optionIndex]);
-	      if (!correct) {
-	        this.actions.endGame();
-	      } else {
-	        this.actions.nextRound(_dep.alt.stores.Game.state);
+	      var round = _dep.GameLogic.nextRound(gameState, gameState.options[optionIndex]);
 
-	        //  Check highscpre
-	        var oldHighScore = localStorage.getItem('highScore');
-	        var score = _dep.alt.stores.Game.state.score;
-	        if (!oldHighScore || score > oldHighScore) {
-	          localStorage.setItem('highScore', score);
-	          _App2['default'].newHighScore(score);
-	        }
-	      }
-	    }
-	  }, {
-	    key: 'nextRound',
-	    value: function nextRound(prevRound) {
-	      var round = _dep.GameLogic.nextRound(prevRound);
 	      this.dispatch(round);
+
+	      if (round.msLeft < 0) {
+	        this.actions.endGame();
+	      }
+
+	      //  Check highscpre
+	      var oldHighScore = localStorage.getItem('highScore');
+	      var score = _dep.alt.stores.Game.state.score;
+	      if (!oldHighScore || score > oldHighScore) {
+	        localStorage.setItem('highScore', score);
+	        _App2['default'].newHighScore(score);
+	      }
 	    }
 	  }]);
 
@@ -22579,7 +22585,7 @@
 	    this.bindListeners({
 	      onStartGame: _dep.Actions.App.startGame,
 	      onDecrementTime: _dep.Actions.Game.decrementTime,
-	      onNextRound: _dep.Actions.Game.nextRound
+	      onPickOption: _dep.Actions.Game.pickOption
 	    });
 
 	    this.state = {};
@@ -22598,8 +22604,8 @@
 	      });
 	    }
 	  }, {
-	    key: 'onNextRound',
-	    value: function onNextRound(round) {
+	    key: 'onPickOption',
+	    value: function onPickOption(round) {
 	      this.setState(round);
 	    }
 	  }]);
@@ -22717,8 +22723,37 @@
 	      _dep.Stores.Game.unlisten(this._handleGameStore);
 	    }
 	  }, {
+	    key: 'componentDidUpdate',
+	    value: function componentDidUpdate() {
+	      var _this = this;
+
+	      //  Fade
+	      if (this.state.msChangeProgressLeft > 0) {
+	        (function () {
+	          var animationTime = 1000;
+	          var fps = 1 / 25;
+	          var timePassed = new Date().getTime() - _this.state.msChangeTime;
+	          setTimeout(function () {
+	            _this.setState({
+	              msChangeProgressLeft: 1 - timePassed / animationTime
+	            });
+	          }, fps);
+	        })();
+	      }
+	    }
+	  }, {
 	    key: '_handleGameStore',
 	    value: function _handleGameStore(data) {
+	      data = JSON.parse(JSON.stringify(data));
+	      if (data.msLeft !== undefined && data.id === this.state.id) {
+	        var msChange = Math.round((data.msLeft - this.state.msLeft) / 1000) * 1000;
+	        if (msChange) {
+	          data.msChangeTime = new Date().getTime();
+	          data.msChange = msChange;
+	          data.msChangeProgressLeft = 1;
+	        }
+	      }
+
 	      this.setState(data);
 	    }
 	  }, {
@@ -22738,9 +22773,32 @@
 	      }
 	    }
 	  }, {
+	    key: '_getMSChangeStyle',
+	    value: function _getMSChangeStyle(msChange, msChangeProgressLeft) {
+	      var style = {};
+
+	      if (!msChange) {
+	        style.visibility = 'hidden';
+	      } else {
+	        style.opacity = msChangeProgressLeft;
+	        style.webkitTransform = 'scale(' + (1 + 0.3 * (1 - msChangeProgressLeft)) + ')';
+	        style.transform = 'scale(' + (1 + 0.3 * (1 - msChangeProgressLeft)) + ')';
+	      }
+
+	      if (msChange < 0) {
+	        style.color = '#ea6052';
+	        style.marginTop = '12px';
+	      } else if (msChange > 0) {
+	        style.color = '#2ecc71';
+	        style.marginTop = '-12px';
+	      }
+
+	      return style;
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
-	      var _this = this;
+	      var _this2 = this;
 
 	      var danger = this.state.msLeft < 5000;
 
@@ -22757,7 +22815,25 @@
 	            style: {
 	              visibility: this.props.enabled ? 'visible' : 'hidden'
 	            } },
-	          parseFloat(this.state.msLeft / 1000).toFixed(2).split('.').join(':')
+	          _react2['default'].createElement(
+	            'div',
+	            { className: 'ms-left' },
+	            parseFloat(this.state.msLeft / 1000).toFixed(1).split('.').join(':')
+	          ),
+	          _react2['default'].createElement(
+	            'div',
+	            {
+	              className: 'score-change',
+	              key: this.state.msChangeTime,
+	              style: this._getMSChangeStyle(this.state.msChange, this.state.msChangeProgressLeft) },
+	            this.state.msChange > 0 ? '+' : '',
+	            parseFloat(this.state.msChange / 1000).toFixed(1),
+	            _react2['default'].createElement(
+	              'span',
+	              { className: 'secs' },
+	              ' secs'
+	            )
+	          )
 	        ),
 	        _react2['default'].createElement('div', { className: 'box background-fade', style: { background: this._intToHexColor(this.state.colorA) } }),
 	        _react2['default'].createElement(
@@ -22777,14 +22853,14 @@
 	            className: (0, _classnames2['default'])({
 	              'box-option': true,
 	              'background-fade': true,
-	              'box-option-hover': _this.state.hovering === i
+	              'box-option-hover': _this2.state.hovering === i
 	            }),
-	            style: { cursor: 'pointer', background: _this._intToHexColor(color) },
-	            onMouseOver: _this._handleHovering.bind(_this, i, true),
-	            onMouseLeave: _this._handleHovering.bind(_this, i, false),
-	            onTouchEnd: _this._handleHovering.bind(_this, i, false),
-	            onTouchCancel: _this._handleHovering.bind(_this, i, false),
-	            onMouseUp: _this._handleHovering.bind(_this, i, false),
+	            style: { cursor: 'pointer', background: _this2._intToHexColor(color) },
+	            onMouseOver: _this2._handleHovering.bind(_this2, i, true),
+	            onMouseLeave: _this2._handleHovering.bind(_this2, i, false),
+	            onTouchEnd: _this2._handleHovering.bind(_this2, i, false),
+	            onTouchCancel: _this2._handleHovering.bind(_this2, i, false),
+	            onMouseUp: _this2._handleHovering.bind(_this2, i, false),
 	            onClick: _dep.Actions.Game.pickOption.bind(null, i) });
 	        })
 	      );
@@ -23073,7 +23149,7 @@
 	      FB.ui({
 	        method: 'feed',
 	        description: message,
-	        caption: 'COLOR+ ~ can you score higher?',
+	        caption: 'COLOR+ ~ can you score higher than me??',
 	        link: 'http://khankuan.github.io/colorplus',
 	        picture: 'http://khankuan.github.io/colorplus/picture.png'
 	      }, function (response) {});
@@ -23081,7 +23157,6 @@
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      var message = 'I scored ' + this.props.gameStore.score + ' points at COLOR+, a game where you guess a combination of colors! #colorplus ' + window.location;
 	      return _react2['default'].createElement(
 	        'div',
 	        { className: 'ended' },
@@ -25293,7 +25368,7 @@
 
 
 	// module
-	exports.push([module.id, "html {\n  padding: 0; }\n\nbody {\n  font-family: 'Moon Bold', sans-serif;\n  color: #666;\n  margin: 0;\n  margin-top: 20px;\n  font-size: 12px;\n  -webkit-user-select: none;\n  /* Chrome all / Safari all */\n  -moz-user-select: none;\n  /* Firefox all */\n  -ms-user-select: none;\n  /* IE 10+ */\n  user-select: none;\n  /* Likely future */\n  -webkit-tap-highlight-color: transparent;\n  -moz-tap-highlight-color: transparent;\n  tap-highlight-color: transparent; }\n\n.app {\n  width: 280px;\n  margin: 0 auto;\n  position: relative; }\n\n.container {\n  position: relative; }\n\n@media (min-width: 520px) {\n  body {\n    font-size: 18px;\n    margin-top: 60px; }\n  .app {\n    width: 500px; } }\n\n/* Buzz */\n@-webkit-keyframes hvr-buzz {\n  50% {\n    -webkit-transform: translateX(3px) rotate(2deg);\n    transform: translateX(3px) rotate(2deg); }\n  100% {\n    -webkit-transform: translateX(-3px) rotate(-2deg);\n    transform: translateX(-3px) rotate(-2deg); } }\n\n@keyframes hvr-buzz {\n  50% {\n    -webkit-transform: translateX(3px) rotate(2deg);\n    transform: translateX(3px) rotate(2deg); }\n  100% {\n    -webkit-transform: translateX(-3px) rotate(-2deg);\n    transform: translateX(-3px) rotate(-2deg); } }\n\n@keyframes blink {\n  0% {\n    opacity: 0.7; }\n  50% {\n    opacity: 1; }\n  100% {\n    opacity: 0.7; } }\n\n/* Opera */\n@-moz-keyframes blink {\n  0% {\n    opacity: 0.7; }\n  50% {\n    opacity: 1; }\n  100% {\n    opacity: 0.7; } }\n\n/* Firefox */\n@-webkit-keyframes blink {\n  0% {\n    opacity: 0.7; }\n  50% {\n    opacity: 1; }\n  100% {\n    opacity: 0.7; } }\n\n/* Webkit */\n@-ms-keyframes blink {\n  0% {\n    opacity: 0.7; }\n  50% {\n    opacity: 1; }\n  100% {\n    opacity: 0.7; } }\n\n/* IE */\n.title {\n  font-size: 36px;\n  line-height: 60px; }\n\n.scores {\n  display: inline-block;\n  float: right; }\n\n.score {\n  display: inline-block;\n  text-align: center;\n  padding: 0 0.3em;\n  margin-left: 0.5em;\n  background: #eee;\n  border-radius: 0.3em; }\n  .score p {\n    margin: 0.5em; }\n  .score .score-amt {\n    font-size: 18px;\n    font-family: 'Moon Light'; }\n\n.intro {\n  margin-top: 1em;\n  font-size: 16px;\n  font-family: 'Moon Light';\n  width: 100%;\n  margin-bottom: 1em;\n  display: inline-block; }\n  .intro div {\n    display: inline-block;\n    width: calc(100% - 120px); }\n  .intro a {\n    font-size: 14px;\n    color: white;\n    cursor: pointer;\n    float: right;\n    font-family: 'Moon Bold';\n    width: 80px;\n    position: relative;\n    background: rgba(40, 62, 80, 0.7);\n    border-radius: 0.3em;\n    padding: 0.5em;\n    box-shadow: 2px 2px rgba(40, 62, 80, 0.3);\n    -webkit-transition: background 0.2s;\n    -moz-transition: background 0.2s;\n    -ms-transition: background 0.2s;\n    -o-transition: background 0.2s;\n    transition: background 0.2s; }\n    .intro a:hover {\n      background: rgba(184, 64, 28, 0.7);\n      box-shadow: 2px 2px rgba(184, 64, 28, 0.3); }\n    .intro a:active {\n      left: 2px;\n      top: 2px;\n      box-shadow: none; }\n\n@media (min-width: 520px) {\n  .title {\n    font-size: 72px;\n    line-height: 72px; }\n  .intro div {\n    line-height: 32px; } }\n\n.game {\n  text-align: center;\n  width: 100%;\n  background: #eee;\n  padding: 2em 0; }\n  .game .symbol {\n    font-size: 96px;\n    font-family: 'Moon Light';\n    vertical-align: top;\n    line-height: 72px;\n    margin: 0 0.3em; }\n  .game .plus {\n    display: inline-block;\n    line-height: 72px; }\n  .game .equals {\n    display: block;\n    line-height: 72px; }\n\n.box {\n  width: 72px;\n  height: 72px;\n  border-radius: 0.3em;\n  display: inline-block; }\n\n.box-option {\n  width: 50px;\n  height: 50px;\n  border-radius: 25px;\n  display: inline-block;\n  margin: 0 10px; }\n\n.box-option-hover {\n  -webkit-animation-name: hvr-buzz;\n  animation-name: hvr-buzz;\n  -webkit-animation-duration: 0.15s;\n  animation-duration: 0.15s;\n  -webkit-animation-timing-function: linear;\n  animation-timing-function: linear;\n  -webkit-animation-iteration-count: infinite;\n  animation-iteration-count: infinite; }\n\n.time {\n  margin-bottom: 0.5em;\n  font-size: 48px; }\n\n.time-danger {\n  color: #C0392B;\n  -moz-transition: all 0.5s ease-in-out;\n  -webkit-transition: all 0.5s ease-in-out;\n  -o-transition: all 0.5s ease-in-out;\n  -ms-transition: all 0.5s ease-in-out;\n  transition: all 0.5s ease-in-out;\n  -moz-animation: blink normal 0.8s infinite ease-in-out;\n  /* Firefox */\n  -webkit-animation: blink normal 0.8s infinite ease-in-out;\n  /* Webkit */\n  -ms-animation: blink normal 0.8s infinite ease-in-out;\n  /* IE */\n  animation: blink normal 0.8s infinite ease-in-out;\n  /* Opera */ }\n\n.background-fade {\n  -moz-transition: background 0.3s ease-in-out;\n  -webkit-transition: background 0.3s ease-in-out;\n  -o-transition: background 0.3s ease-in-out;\n  -ms-transition: background 0.3s ease-in-out;\n  transition: background 0.3s ease-in-out; }\n\n@media (min-width: 520px) {\n  .box {\n    width: 120px;\n    height: 120px; }\n  .game .plus {\n    line-height: 120px; }\n  .box-option {\n    width: 100px;\n    height: 100px;\n    border-radius: 50px; }\n  .intro div {\n    line-height: 32px; } }\n\n.ended {\n  z-index: 1;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  background: rgba(240, 240, 240, 0.95);\n  text-align: center;\n  padding-top: 2em;\n  color: rgba(40, 62, 80, 0.7); }\n  .ended .game-over {\n    font-size: 32px; }\n  .ended a {\n    font-size: 18px;\n    color: white;\n    cursor: pointer;\n    font-family: 'Moon Bold';\n    position: relative;\n    background: rgba(40, 62, 80, 0.7);\n    border-radius: 0.3em;\n    padding: 0.5em;\n    box-shadow: 2px 2px rgba(40, 62, 80, 0.3);\n    -webkit-transition: background 0.2s;\n    -moz-transition: background 0.2s;\n    -ms-transition: background 0.2s;\n    -o-transition: background 0.2s;\n    transition: background 0.2s; }\n    .ended a:hover {\n      background: rgba(184, 64, 28, 0.7);\n      box-shadow: 2px 2px rgba(184, 64, 28, 0.3); }\n    .ended a:active {\n      left: 2px;\n      top: 2px;\n      box-shadow: none; }\n\n/*# sourceMappingURL=public/js/sass.map */", ""]);
+	exports.push([module.id, "html {\n  padding: 0; }\n\nbody {\n  font-family: 'Moon Bold', sans-serif;\n  color: #666;\n  margin: 0;\n  margin-top: 20px;\n  font-size: 12px;\n  -webkit-user-select: none;\n  /* Chrome all / Safari all */\n  -moz-user-select: none;\n  /* Firefox all */\n  -ms-user-select: none;\n  /* IE 10+ */\n  user-select: none;\n  /* Likely future */\n  -webkit-tap-highlight-color: transparent;\n  -moz-tap-highlight-color: transparent;\n  tap-highlight-color: transparent; }\n\n.app {\n  width: 280px;\n  margin: 0 auto;\n  position: relative; }\n\n.container {\n  position: relative; }\n\n@media (min-width: 520px) {\n  body {\n    font-size: 18px;\n    margin-top: 60px; }\n  .app {\n    width: 500px; } }\n\n/* Buzz */\n@-webkit-keyframes hvr-buzz {\n  50% {\n    -webkit-transform: translateX(3px) rotate(2deg);\n    transform: translateX(3px) rotate(2deg); }\n  100% {\n    -webkit-transform: translateX(-3px) rotate(-2deg);\n    transform: translateX(-3px) rotate(-2deg); } }\n\n@keyframes hvr-buzz {\n  50% {\n    -webkit-transform: translateX(3px) rotate(2deg);\n    transform: translateX(3px) rotate(2deg); }\n  100% {\n    -webkit-transform: translateX(-3px) rotate(-2deg);\n    transform: translateX(-3px) rotate(-2deg); } }\n\n@keyframes blink {\n  0% {\n    opacity: 0.7; }\n  50% {\n    opacity: 1; }\n  100% {\n    opacity: 0.7; } }\n\n/* Opera */\n@-moz-keyframes blink {\n  0% {\n    opacity: 0.7; }\n  50% {\n    opacity: 1; }\n  100% {\n    opacity: 0.7; } }\n\n/* Firefox */\n@-webkit-keyframes blink {\n  0% {\n    opacity: 0.7; }\n  50% {\n    opacity: 1; }\n  100% {\n    opacity: 0.7; } }\n\n/* Webkit */\n@-ms-keyframes blink {\n  0% {\n    opacity: 0.7; }\n  50% {\n    opacity: 1; }\n  100% {\n    opacity: 0.7; } }\n\n/* IE */\n.title {\n  font-size: 36px;\n  line-height: 60px; }\n\n.scores {\n  display: inline-block;\n  float: right; }\n\n.score {\n  display: inline-block;\n  text-align: center;\n  padding: 0 0.3em;\n  margin-left: 0.5em;\n  background: #eee;\n  border-radius: 0.3em; }\n  .score p {\n    margin: 0.5em; }\n  .score .score-amt {\n    font-size: 18px;\n    font-family: 'Moon Light'; }\n\n.intro {\n  margin-top: 1em;\n  font-size: 16px;\n  font-family: 'Moon Light';\n  width: 100%;\n  margin-bottom: 1em;\n  display: inline-block; }\n  .intro div {\n    display: inline-block;\n    width: calc(100% - 120px); }\n  .intro a {\n    font-size: 14px;\n    color: white;\n    cursor: pointer;\n    float: right;\n    font-family: 'Moon Bold';\n    width: 80px;\n    position: relative;\n    background: rgba(40, 62, 80, 0.7);\n    border-radius: 0.3em;\n    padding: 0.5em;\n    box-shadow: 2px 2px rgba(40, 62, 80, 0.3);\n    -webkit-transition: background 0.2s;\n    -moz-transition: background 0.2s;\n    -ms-transition: background 0.2s;\n    -o-transition: background 0.2s;\n    transition: background 0.2s; }\n    .intro a:hover {\n      background: rgba(184, 64, 28, 0.7);\n      box-shadow: 2px 2px rgba(184, 64, 28, 0.3); }\n    .intro a:active {\n      left: 2px;\n      top: 2px;\n      box-shadow: none; }\n\n@media (min-width: 520px) {\n  .title {\n    font-size: 72px;\n    line-height: 72px; }\n  .intro div {\n    line-height: 32px; } }\n\n.game {\n  text-align: center;\n  width: 100%;\n  background: #eee;\n  padding: 2em 0; }\n  .game .symbol {\n    font-size: 96px;\n    font-family: 'Moon Light';\n    vertical-align: top;\n    line-height: 72px;\n    margin: 0 0.3em; }\n  .game .plus {\n    display: inline-block;\n    line-height: 72px; }\n  .game .equals {\n    display: block;\n    line-height: 72px; }\n  .game .ms-left {\n    width: 64px;\n    display: inline-block; }\n  .game .score-change {\n    position: absolute;\n    display: inline-block;\n    margin-left: 10px;\n    font-size: 18px;\n    line-height: 32px; }\n    .game .score-change .secs {\n      font-size: 11px; }\n\n.box {\n  width: 72px;\n  height: 72px;\n  border-radius: 0.3em;\n  display: inline-block; }\n\n.box-option {\n  width: 50px;\n  height: 50px;\n  border-radius: 25px;\n  display: inline-block;\n  margin: 0 10px; }\n\n.box-option-hover {\n  -webkit-animation-name: hvr-buzz;\n  animation-name: hvr-buzz;\n  -webkit-animation-duration: 0.15s;\n  animation-duration: 0.15s;\n  -webkit-animation-timing-function: linear;\n  animation-timing-function: linear;\n  -webkit-animation-iteration-count: infinite;\n  animation-iteration-count: infinite; }\n\n.time {\n  margin-bottom: 0.5em;\n  font-size: 32px; }\n\n.time-danger {\n  color: #C0392B;\n  -moz-transition: all 0.5s ease-in-out;\n  -webkit-transition: all 0.5s ease-in-out;\n  -o-transition: all 0.5s ease-in-out;\n  -ms-transition: all 0.5s ease-in-out;\n  transition: all 0.5s ease-in-out;\n  -moz-animation: blink normal 0.8s infinite ease-in-out;\n  /* Firefox */\n  -webkit-animation: blink normal 0.8s infinite ease-in-out;\n  /* Webkit */\n  -ms-animation: blink normal 0.8s infinite ease-in-out;\n  /* IE */\n  animation: blink normal 0.8s infinite ease-in-out;\n  /* Opera */ }\n\n.background-fade {\n  -moz-transition: background 0.3s ease-in-out;\n  -webkit-transition: background 0.3s ease-in-out;\n  -o-transition: background 0.3s ease-in-out;\n  -ms-transition: background 0.3s ease-in-out;\n  transition: background 0.3s ease-in-out; }\n\n@media (min-width: 520px) {\n  .box {\n    width: 120px;\n    height: 120px; }\n  .game .plus {\n    line-height: 120px; }\n  .game .score-change {\n    font-size: 24px;\n    line-height: 54px;\n    margin-left: 24px; }\n    .game .score-change .secs {\n      font-size: 16px; }\n  .game .ms-left {\n    width: 96px; }\n  .box-option {\n    width: 100px;\n    height: 100px;\n    border-radius: 50px; }\n  .intro div {\n    line-height: 32px; }\n  .time {\n    font-size: 48px; } }\n\n.ended {\n  z-index: 1;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  background: rgba(240, 240, 240, 0.95);\n  text-align: center;\n  padding-top: 2em;\n  color: rgba(40, 62, 80, 0.7); }\n  .ended .game-over {\n    font-size: 32px; }\n  .ended a {\n    font-size: 18px;\n    color: white;\n    cursor: pointer;\n    font-family: 'Moon Bold';\n    position: relative;\n    background: rgba(40, 62, 80, 0.7);\n    border-radius: 0.3em;\n    padding: 0.5em;\n    box-shadow: 2px 2px rgba(40, 62, 80, 0.3);\n    -webkit-transition: background 0.2s;\n    -moz-transition: background 0.2s;\n    -ms-transition: background 0.2s;\n    -o-transition: background 0.2s;\n    transition: background 0.2s; }\n    .ended a:hover {\n      background: rgba(184, 64, 28, 0.7);\n      box-shadow: 2px 2px rgba(184, 64, 28, 0.3); }\n    .ended a:active {\n      left: 2px;\n      top: 2px;\n      box-shadow: none; }\n\n/*# sourceMappingURL=public/js/sass.map */", ""]);
 
 	// exports
 

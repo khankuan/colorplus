@@ -28,7 +28,31 @@ class Game extends React.Component {
     Stores.Game.unlisten(this._handleGameStore);
   }
 
+  componentDidUpdate () {
+    //  Fade
+    if (this.state.msChangeProgressLeft > 0){
+      const animationTime = 1000;
+      const fps = 1 / 25;
+      const timePassed = new Date().getTime() - this.state.msChangeTime;
+      setTimeout(() => {
+        this.setState({
+          msChangeProgressLeft: 1 - (timePassed / animationTime)
+        });
+      }, fps);
+    }
+  }
+
   _handleGameStore (data) {
+    data = JSON.parse(JSON.stringify(data));
+    if (data.msLeft !== undefined && data.id === this.state.id){
+      const msChange = Math.round((data.msLeft - this.state.msLeft) / 1000) * 1000;
+      if (msChange){
+        data.msChangeTime = new Date().getTime();
+        data.msChange = msChange;
+        data.msChangeProgressLeft = 1;
+      }
+    }
+
     this.setState(data);
   }
 
@@ -46,6 +70,28 @@ class Game extends React.Component {
     }
   }
 
+  _getMSChangeStyle (msChange, msChangeProgressLeft) {
+    let style = {};
+
+    if (!msChange){
+      style.visibility = 'hidden';
+    } else {
+      style.opacity = msChangeProgressLeft;
+      style.webkitTransform = `scale(${1 + 0.3 * (1 - msChangeProgressLeft)})`;
+      style.transform = `scale(${1 + 0.3 * (1 - msChangeProgressLeft)})`;
+    }
+
+    if (msChange < 0) {
+      style.color = '#ea6052';
+      style.marginTop = '12px';
+    } else if (msChange > 0) {
+      style.color = '#2ecc71';
+      style.marginTop = '-12px';
+    }
+
+    return style;
+  }
+
 
   render (){
     const danger = this.state.msLeft < 5000;
@@ -60,7 +106,16 @@ class Game extends React.Component {
           style={{
             visibility: this.props.enabled ? 'visible' : 'hidden'
           }}>
-          {parseFloat(this.state.msLeft / 1000).toFixed(2).split('.').join(':')}
+          <div className='ms-left'>{parseFloat(this.state.msLeft / 1000).toFixed(1).split('.').join(':')}</div>
+
+          <div
+            className='score-change'
+            key={this.state.msChangeTime}
+            style={this._getMSChangeStyle(this.state.msChange, this.state.msChangeProgressLeft)}>
+            {this.state.msChange > 0 ? '+' : ''}{parseFloat(this.state.msChange / 1000).toFixed(1)}
+            <span className='secs'> secs</span>
+          </div>
+
         </div>
 
         <div className='box background-fade' style={{background: this._intToHexColor(this.state.colorA)}} />

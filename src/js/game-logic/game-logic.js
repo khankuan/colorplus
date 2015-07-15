@@ -13,7 +13,7 @@ class GameLogic {
     function step(timestamp) {
       if (started){
         const curTime = new Date().getTime();
-        if (curTime - prevTime > 50){ //  Not more than once per 50 ms
+        if (curTime - prevTime > 90){ //  Not more than once per 90 ms
           Actions.Game.decrementTime(curTime - prevTime);
           prevTime = curTime;
         }
@@ -42,19 +42,30 @@ class GameLogic {
     return (red << 16) + (green << 8) + blue;
   }
 
-  static nextRound (prevRound = {score: -1}) {
-    //  27 rounds before 3 secs left
-    const msLeft = Math.max(30000 - 1000 * (prevRound.score + 1), 3000);
-    const colorA = GameLogic._random24();
-    //  40 rounds before fully random
-    const colorB = GameLogic._random24(colorA, Math.max(4 - (prevRound.score + 1) / 10, 0));
+  static nextRound (prevRound = {score: 0, msLeft: 9999, id: new Date().getTime()}, chosenColor) {
     let round = {
-      score: prevRound.score + 1,
-      msLeft,
-      colorA,
-      colorB,
-      options: []
+      score: prevRound.score,
+      msLeft: prevRound.msLeft,
+      options: [],
+      id: prevRound.id
     };
+
+    //  Compute time change
+    if (chosenColor){
+      if (GameLogic.isCorrectColor(prevRound.colorA, prevRound.colorB, chosenColor)){
+        round.msLeft += 1000;
+        round.score++;
+      } else {
+        round.msLeft -= 2000;
+      }
+    }
+
+    round.colorA = GameLogic._random24();
+
+    //  score = 25 before fully random, from 4:1 to 0:1
+    const mixerStrength = 2;
+    const mixerMax = 25;
+    round.colorB = GameLogic._random24(round.colorA, Math.max(mixerStrength * (mixerMax - prevRound.score) / mixerMax, 0));
 
     round.ans = GameLogic.colorAverage(round.colorA, round.colorB);
     round.options.push(round.ans);
