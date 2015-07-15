@@ -9,7 +9,7 @@ class Game {
     this.bindListeners({
       onStartGame: Actions.App.startGame,
       onDecrementTime: Actions.Game.decrementTime,
-      onNextRound: Actions.Game.nextRound
+      onPickOption: Actions.Game.pickOption
     });
 
     this.state = {};
@@ -25,7 +25,7 @@ class Game {
     });
   }
 
-  onNextRound (round) {
+  onPickOption (round) {
     this.setState(round);
   }
 }

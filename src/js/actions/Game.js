@@ -22,25 +22,21 @@ class Game {
 
   pickOption (optionIndex) {
     const gameState = alt.stores.Game.state;
-    const correct = GameLogic.isCorrectColor(gameState.colorA, gameState.colorB, gameState.options[optionIndex]);
-    if (!correct){
-      this.actions.endGame();
-    } else {
-      this.actions.nextRound(alt.stores.Game.state);
+    const round = GameLogic.nextRound(gameState, gameState.options[optionIndex]);
 
-      //  Check highscpre
-      const oldHighScore = localStorage.getItem('highScore');
-      const score = alt.stores.Game.state.score;
-      if (!oldHighScore || score > oldHighScore){
-        localStorage.setItem('highScore', score);
-        AppActions.newHighScore(score);
-      }
-    }
-  }
-
-  nextRound (prevRound) {
-    const round = GameLogic.nextRound(prevRound);
     this.dispatch(round);
+
+    if (round.msLeft < 0){
+      this.actions.endGame();
+    }
+
+    //  Check highscpre
+    const oldHighScore = localStorage.getItem('highScore');
+    const score = alt.stores.Game.state.score;
+    if (!oldHighScore || score > oldHighScore){
+      localStorage.setItem('highScore', score);
+      AppActions.newHighScore(score);
+    }
   }
 }
 
