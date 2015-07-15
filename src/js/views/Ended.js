@@ -41,22 +41,19 @@ class Ended extends React.Component {
         </div>
 
         <br />
-        <br />
 
-        <div>
-          <a onClick={this.handleShare.bind(this)}
-             target='_blank'>
-             Share on Twitter
-          </a>
-        </div>
-
-        <br />
-        <br />
+        <p className='game-over'>SHARE!</p>
 
         <div>
           <a onClick={this.handleFbShare.bind(this)}
             target='_blank'>
-            Share on Facebook
+            Facebook
+          </a>
+          &nbsp;
+          &nbsp;
+          <a onClick={this.handleShare.bind(this)}
+             target='_blank'>
+             &nbsp;&nbsp;Twitter&nbsp;&nbsp;
           </a>
         </div>
 
