@@ -73,16 +73,20 @@ class Game extends React.Component {
   _getMSChangeStyle (msChange, msChangeProgressLeft) {
     let style = {};
 
+    if (!msChange){
+      style.visibility = 'hidden';
+    } else {
+      style.opacity = msChangeProgressLeft;
+      style.webkitTransform = `scale(${1 + 0.3 * (1 - msChangeProgressLeft)})`;
+      style.transform = `scale(${1 + 0.3 * (1 - msChangeProgressLeft)})`;
+    }
+
     if (msChange < 0) {
       style.color = '#ea6052';
       style.marginTop = '12px';
-      style.opacity = msChangeProgressLeft;
     } else if (msChange > 0) {
       style.color = '#2ecc71';
       style.marginTop = '-12px';
-      style.opacity = msChangeProgressLeft;
-    } else {
-      style.visibility = 'hidden';
     }
 
     return style;
