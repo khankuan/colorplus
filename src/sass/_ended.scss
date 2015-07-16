@@ -9,7 +9,6 @@
   right: 0;
   background: rgba(240, 240, 240, 0.95);
   text-align: center;
-  padding-top: 2em;
   color: rgba(40, 62, 80, 0.7);
 
   .game-over {
@@ -23,5 +22,12 @@
     font-family: 'Moon Bold';
 
     @include button-style;
+  }
+}
+
+
+@media (min-width: 520px) {
+  .ended {
+    padding-top: 36px;
   }
 }
