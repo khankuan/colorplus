@@ -31,7 +31,7 @@ class Game extends React.Component {
   componentDidUpdate () {
     //  Fade
     if (this.state.msChangeProgressLeft > 0){
-      const animationTime = 1000;
+      const animationTime = 500;
       const fps = 1 / 25;
       const timePassed = new Date().getTime() - this.state.msChangeTime;
       setTimeout(() => {
@@ -76,17 +76,16 @@ class Game extends React.Component {
     if (!msChange){
       style.visibility = 'hidden';
     } else {
+      msChangeProgressLeft = Math.pow(Math.max(msChangeProgressLeft, 0), 0.5);
       style.opacity = msChangeProgressLeft;
-      style.WebkitTransform = `scale(${1 + 0.3 * (1 - msChangeProgressLeft)})`;
-      style.transform = `scale(${1 + 0.3 * (1 - msChangeProgressLeft)})`;
+      style.WebkitTransform = `scale(${1 + 0.2 * (1 - msChangeProgressLeft)})`;
+      style.transform = `scale(${1 + 0.2 * (1 - msChangeProgressLeft)})`;
     }
 
     if (msChange < 0) {
       style.color = '#ea6052';
-      style.marginTop = '12px';
     } else if (msChange > 0) {
       style.color = '#2ecc71';
-      style.marginTop = '-12px';
     }
 
     return style;
@@ -108,21 +107,23 @@ class Game extends React.Component {
           }}>
           <div className='ms-left'>{parseFloat(this.state.msLeft / 1000).toFixed(1).split('.').join(':')}</div>
 
-          <div
-            className='score-change'
-            key={this.state.msChangeTime}
-            style={this._getMSChangeStyle(this.state.msChange, this.state.msChangeProgressLeft)}>
-            {this.state.msChange > 0 ? '+' : ''}{parseFloat(this.state.msChange / 1000).toFixed(1)}
-            <span className='secs'> secs</span>
-          </div>
-
         </div>
 
-        <div className='box background-fade' style={{background: this._intToHexColor(this.state.colorA)}} />
-        <div className='symbol plus'>+</div>
-        <div className='box background-fade' style={{background: this._intToHexColor(this.state.colorB)}} />
+        <div>
+          <div className='box background-fade' style={{background: this._intToHexColor(this.state.colorA)}} />
+          <div className='symbol plus'>+</div>
+          <div className='box background-fade' style={{background: this._intToHexColor(this.state.colorB)}} />
+        </div>
 
-        <div className='symbol equals'>=</div>
+
+        <div
+          className='score-change'
+          key={this.state.msChangeTime}
+          style={this._getMSChangeStyle(this.state.msChange, this.state.msChangeProgressLeft)}>
+          {this.state.msChange > 0 ? '+' : ''}{parseFloat(this.state.msChange / 1000).toFixed(1)}
+          <span className='secs'> secs</span>
+        </div>
+
         {
           this.state.options.map((color, i) => {
             return (
